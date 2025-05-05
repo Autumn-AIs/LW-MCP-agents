@@ -7,9 +7,8 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from mcp import ClientSession
-
-from src.utils.context import get_context
 from src.mcp.mcp_connection_manager import MCPConnectionManager
+from src.utils.context import get_context
 
 
 class Tool:
@@ -37,7 +36,9 @@ class Tool:
 
         if "properties" in self.input_schema:
             for param_name, param_info in self.input_schema["properties"].items():
-                arg_desc = f"- {param_name}: {param_info.get('description', 'No description')}"
+                arg_desc = (
+                    f"- {param_name}: {param_info.get('description', 'No description')}"
+                )
 
                 if param_name in self.input_schema.get("required", []):
                     arg_desc += " (required)"
@@ -57,7 +58,7 @@ Server: {self.server_name}
         arguments: Dict[str, Any],
         connection_manager: MCPConnectionManager,
         retries: int = 2,
-        delay: float = 1.0
+        delay: float = 1.0,
     ) -> Any:
         """Execute the tool with retry mechanism."""
         attempt = 0
@@ -119,9 +120,7 @@ class ToolRegistry:
         self.tools.clear()
 
     async def load_from_config(
-        self,
-        config: Dict[str, Any],
-        connection_manager: MCPConnectionManager
+        self, config: Dict[str, Any], connection_manager: MCPConnectionManager
     ) -> None:
         """
         Load tools from MCP servers defined in configuration.
@@ -137,9 +136,7 @@ class ToolRegistry:
             await self.discover_tools(connection_manager, server_name)
 
     async def discover_tools(
-        self,
-        connection_manager: MCPConnectionManager,
-        server_name: str
+        self, connection_manager: MCPConnectionManager, server_name: str
     ) -> List[Tool]:
         """
         Discover tools from a server and register them.
@@ -167,7 +164,9 @@ class ToolRegistry:
                         self.register_tool(tool)
                         discovered_tools.append(tool)
 
-            self.logger.info(f"Discovered {len(discovered_tools)} tools from server {server_name}")
+            self.logger.info(
+                f"Discovered {len(discovered_tools)} tools from server {server_name}"
+            )
             return discovered_tools
 
         except Exception as e:

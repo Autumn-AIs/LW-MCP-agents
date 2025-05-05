@@ -1,6 +1,7 @@
 import logging
+from typing import Any, Dict, List, Optional
+
 import httpx
-from typing import List, Dict, Any, Optional
 
 from src.llm.base_llm import BaseLLM
 
@@ -21,7 +22,7 @@ class GroqLLM(BaseLLM):
         "llama-3.2-8b-chat-preview",
         "llama-3.2-70b-chat",
         "mixtral-8x7b-32768",
-        "gemma-7b-it"
+        "gemma-7b-it",
     ]
 
     def __init__(self, api_key: str, model: Optional[str] = None) -> None:
@@ -77,13 +78,18 @@ class GroqLLM(BaseLLM):
             ValueError: If the model is not supported by Groq.
         """
         if model_name not in self._GROQ_MODELS:
-            raise ValueError(f"Model {model_name} is not supported by Groq. Available models: {', '.join(self._GROQ_MODELS)}")
+            raise ValueError(
+                f"Model {model_name} is not supported by Groq. Available models: {', '.join(self._GROQ_MODELS)}"
+            )
         self._model = model_name
 
-    def get_response(self, messages: List[Dict[str, str]],
-                    temperature: float = 0.7,
-                    max_tokens: int = 4096,
-                    top_p: float = 1.0) -> str:
+    def get_response(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        max_tokens: int = 4096,
+        top_p: float = 1.0,
+    ) -> str:
         """
         Get a response from the Groq LLM.
 
@@ -117,7 +123,9 @@ class GroqLLM(BaseLLM):
 
         try:
             with httpx.Client() as client:
-                response = client.post(self._GROQ_API_ENDPOINT, headers=headers, json=payload)
+                response = client.post(
+                    self._GROQ_API_ENDPOINT, headers=headers, json=payload
+                )
                 response.raise_for_status()
                 data = response.json()
                 return data["choices"][0]["message"]["content"]

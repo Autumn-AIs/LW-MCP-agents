@@ -8,11 +8,11 @@ import logging
 import re
 from typing import Any, Dict, List, Optional, Tuple, Type
 
+from src.capabilities.capability import CapabilityRegistry
 from src.llm.base_llm import BaseLLM
-from src.utils.context import get_context
 from src.mcp.mcp_connection_manager import MCPConnectionManager
 from src.tools.tool import Tool, ToolRegistry
-from src.capabilities.capability import CapabilityRegistry
+from src.utils.context import get_context
 
 
 class Agent:
@@ -27,7 +27,7 @@ class Agent:
         tool_registry: ToolRegistry,
         capability_registry: Optional[CapabilityRegistry] = None,
         max_tool_chain_length: int = 10,
-        name: str = "agent"
+        name: str = "agent",
     ):
         self.llm_client = llm_client
         self.connection_manager = connection_manager
@@ -47,7 +47,7 @@ class Agent:
             Tuple of (processed_result, is_tool_call, human_readable_text)
         """
         # Regular expression to find JSON objects
-        json_pattern = r'\{(?:[^{}]|(?:\{[^{}]*\}))*\}'
+        json_pattern = r"\{(?:[^{}]|(?:\{[^{}]*\}))*\}"
         matches = re.findall(json_pattern, llm_response)
 
         # Start with the full text as human readable
@@ -98,7 +98,9 @@ class Agent:
                     progress = result["progress"]
                     total = result["total"]
                     percentage = (progress / total) * 100
-                    self.logger.info(f"Progress: {progress}/{total} ({percentage:.1f}%)")
+                    self.logger.info(
+                        f"Progress: {progress}/{total} ({percentage:.1f}%)"
+                    )
 
                 return f"Tool execution result: {result}", True
             except Exception as e:
@@ -134,7 +136,9 @@ class Agent:
             "If no, simply give your final answer."
         )
 
-    async def execute_capability(self, capability_name: str, arguments: Dict[str, Any]) -> str:
+    async def execute_capability(
+        self, capability_name: str, arguments: Dict[str, Any]
+    ) -> str:
         """Execute a capability using the agent's reasoning.
 
         Args:
@@ -154,11 +158,13 @@ class Agent:
         # Create conversation history
         messages = [
             {"role": "system", "content": self.create_tools_system_message()},
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": prompt},
         ]
 
         # Start capability chain-of-thought
-        self.logger.info(f"Executing capability: {capability_name} with arguments: {arguments}")
+        self.logger.info(
+            f"Executing capability: {capability_name} with arguments: {arguments}"
+        )
 
         # Process in a loop (similar to start_conversation but for a single exchange)
         chain_length = 0
@@ -170,14 +176,18 @@ class Agent:
             llm_response = self.llm_client.get_response(messages)
 
             # Process response to check for tool calls
-            result, is_tool_call, human_text = await self.process_llm_response(llm_response)
+            result, is_tool_call, human_text = await self.process_llm_response(
+                llm_response
+            )
 
             # Add the LLM's response to the conversation
             messages.append({"role": "assistant", "content": llm_response})
 
             # If tool was called, add result and continue chain
             if is_tool_call:
-                messages.append({"role": "system", "content": result}) #_TODO: Role Assistant or System?
+                messages.append(
+                    {"role": "system", "content": result}
+                )  # _TODO: Role Assistant or System?
                 chain_length += 1
             elif not result and human_text:
                 # Use the human text as the result if available
@@ -218,7 +228,9 @@ class Agent:
                         llm_response = self.llm_client.get_response(messages)
 
                         # Process response to check for tool calls and extract human-readable text
-                        result, is_tool_call, human_text = await self.process_llm_response(llm_response)
+                        result, is_tool_call, human_text = (
+                            await self.process_llm_response(llm_response)
+                        )
 
                         # Print the human-readable part immediately to the user if it exists
                         if human_text.strip():
@@ -245,8 +257,12 @@ class Agent:
 
                         # Get final response
                         final_response = self.llm_client.get_response(messages)
-                        self.logger.info(f"Final response after limit: {final_response}")
-                        messages.append({"role": "assistant", "content": final_response})
+                        self.logger.info(
+                            f"Final response after limit: {final_response}"
+                        )
+                        messages.append(
+                            {"role": "assistant", "content": final_response}
+                        )
                         print(f"Assistant: {final_response}")
 
                 except KeyboardInterrupt:

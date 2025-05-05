@@ -3,12 +3,12 @@ MCPServerWrapper class for exposing an Agent as an MCP server.
 """
 
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from mcp.server.lowlevel.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import CallToolResult, Tool as MCPTool, TextContent
-
+from mcp.types import CallToolResult, TextContent
+from mcp.types import Tool as MCPTool
 from src.agent.agent import Agent
 from src.tools.tool import Tool
 
@@ -70,9 +70,7 @@ class MCPServerWrapper(Server):
     def _convert_to_mcp_tool(self, tool: Tool) -> MCPTool:
         """Convert our Tool object to an MCP Tool representation."""
         return MCPTool(
-            name=tool.name,
-            description=tool.description,
-            inputSchema=tool.input_schema
+            name=tool.name, description=tool.description, inputSchema=tool.input_schema
         )
 
     async def run_stdio_async(self) -> None:
@@ -82,5 +80,5 @@ class MCPServerWrapper(Server):
             await self.run(
                 read_stream=read_stream,
                 write_stream=write_stream,
-                initialization_options=self.create_initialization_options()
+                initialization_options=self.create_initialization_options(),
             )

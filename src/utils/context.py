@@ -3,10 +3,10 @@ A central context object to store global state that is shared across the applica
 This lightweight implementation is inspired by the MCP agent example.
 """
 
-from typing import Any, Dict, Optional
 import asyncio
 import logging
 from dataclasses import dataclass, field
+from typing import Any, Dict, Optional
 
 from mcp import ClientSession
 
@@ -17,6 +17,7 @@ class Context:
     Context that is passed around through the application.
     This is a global context that is shared across the application.
     """
+
     config: Dict[str, Any] = field(default_factory=dict)
     sessions: Dict[str, ClientSession] = field(default_factory=dict)
 

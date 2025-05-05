@@ -27,7 +27,7 @@ class MCPServerConfig:
         self.transport = transport
 
     @classmethod
-    def from_dict(cls, name: str, data: Dict[str, Any]) -> 'MCPServerConfig':
+    def from_dict(cls, name: str, data: Dict[str, Any]) -> "MCPServerConfig":
         """Create a server config from a dictionary."""
         return cls(
             name=name,
@@ -98,9 +98,8 @@ class Config:
         return {
             "llm_provider": self.llm_provider,
             "mcpServers": {
-                name: config.to_dict()
-                for name, config in self.server_configs.items()
-            }
+                name: config.to_dict() for name, config in self.server_configs.items()
+            },
         }
 
 

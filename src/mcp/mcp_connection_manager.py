@@ -12,8 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
-
-from src.utils.context import get_context, Context
+from src.utils.context import Context, get_context
 
 
 class ServerConnection:
@@ -76,9 +75,7 @@ class ServerConnection:
             read, write = stdio_transport
 
             # Create and initialize session
-            session = await exit_stack.enter_async_context(
-                ClientSession(read, write)
-            )
+            session = await exit_stack.enter_async_context(ClientSession(read, write))
             await session.initialize()
 
             # Store session
@@ -101,7 +98,9 @@ class ServerConnection:
                 # This keeps the task alive until it's canceled
                 await asyncio.Future()
             except asyncio.CancelledError:
-                self.logger.info(f"Server {self.name} task canceled, cleaning up resources")
+                self.logger.info(
+                    f"Server {self.name} task canceled, cleaning up resources"
+                )
                 # Important: The AsyncExitStack is closed in the same task it was created in
                 await exit_stack.aclose()
                 raise
@@ -116,7 +115,7 @@ class ServerConnection:
             raise
         finally:
             # Ensure exit_stack is closed in case of any other exception
-            if 'exit_stack' in locals():
+            if "exit_stack" in locals():
                 await exit_stack.aclose()
 
     async def wait_until_initialized(self) -> None:
@@ -168,7 +167,9 @@ class MCPConnectionManager:
         self._cleanup_lock = asyncio.Lock()
         self._is_cleaning_up = False
 
-    async def connect_server(self, name: str, config: Dict[str, Any]) -> ServerConnection:
+    async def connect_server(
+        self, name: str, config: Dict[str, Any]
+    ) -> ServerConnection:
         """Connect to a server and return the connection."""
         if name in self.connections:
             # If already connecting/connected, return existing connection
@@ -220,7 +221,7 @@ class MCPConnectionManager:
             finally:
                 self._is_cleaning_up = False
 
-    async def __aenter__(self) -> 'MCPConnectionManager':
+    async def __aenter__(self) -> "MCPConnectionManager":
         """Context manager entry."""
         return self
 

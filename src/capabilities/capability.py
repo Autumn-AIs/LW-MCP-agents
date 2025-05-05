@@ -12,12 +12,13 @@ class AgentCapability:
     """
     Represents a high-level capability that requires Agent reasoning.
     """
+
     def __init__(
         self,
         name: str,
         description: str,
         input_schema: Dict[str, Any],
-        prompt_template: str
+        prompt_template: str,
     ):
         self.name = name
         self.description = description
@@ -32,9 +33,7 @@ class AgentCapability:
     def to_mcp_tool(self) -> MCPTool:
         """Convert capability to MCP tool representation."""
         return MCPTool(
-            name=self.name,
-            description=self.description,
-            inputSchema=self.input_schema
+            name=self.name, description=self.description, inputSchema=self.input_schema
         )
 
 
@@ -75,10 +74,12 @@ class CapabilityRegistry:
                     name=capability_config["name"],
                     description=capability_config.get("description", ""),
                     input_schema=capability_config.get("input_schema", {}),
-                    prompt_template=capability_config.get("prompt_template", "")
+                    prompt_template=capability_config.get("prompt_template", ""),
                 )
                 self.register_capability(capability)
             except KeyError as e:
-                self.logger.error(f"Error loading capability from config: missing field {e}")
+                self.logger.error(
+                    f"Error loading capability from config: missing field {e}"
+                )
             except Exception as e:
                 self.logger.error(f"Error loading capability from config: {e}")

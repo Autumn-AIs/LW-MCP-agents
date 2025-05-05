@@ -3,18 +3,18 @@ AgentServer class for managing an agent in both client and server modes.
 """
 
 import asyncio
-import logging
 import json
-from typing import Dict, Any, Optional
+import logging
+from typing import Any, Dict, Optional
 
 from src.agent.agent import Agent
+from src.capabilities.capability import CapabilityRegistry
 from src.llm.base_llm import BaseLLM
 from src.llm.groq_llm import GroqLLM
-from src.utils.context import get_context, initialize_context, cleanup_context
 from src.mcp.mcp_connection_manager import MCPConnectionManager
-from src.tools.tool import ToolRegistry
-from src.capabilities.capability import CapabilityRegistry
 from src.mcp.mcp_server_wrapper import MCPServerWrapper
+from src.tools.tool import ToolRegistry
+from src.utils.context import cleanup_context, get_context, initialize_context
 
 
 class AgentServer:
@@ -23,14 +23,13 @@ class AgentServer:
     """
 
     def __init__(
-        self,
-        config: Dict[str, Any],
-        server_mode: bool = False,
-        server_name: str = None
+        self, config: Dict[str, Any], server_mode: bool = False, server_name: str = None
     ):
         self.config = config
         self.server_mode = server_mode
-        self.server_name = server_name or config.get("server_name", f"agent-server-{id(self)}")
+        self.server_name = server_name or config.get(
+            "server_name", f"agent-server-{id(self)}"
+        )
         self.agent = None
         self.server = None
         self.connection_manager = None
@@ -61,7 +60,7 @@ class AgentServer:
             connection_manager=self.connection_manager,
             tool_registry=self.tool_registry,
             capability_registry=self.capability_registry,
-            name=self.config.get("agent_name", "agent")
+            name=self.config.get("agent_name", "agent"),
         )
 
         # Connect to servers and discover tools
@@ -73,7 +72,9 @@ class AgentServer:
         # If in server mode, initialize the server wrapper
         if self.server_mode:
             self.server = MCPServerWrapper(self.agent, self.server_name)
-            self.logger.info(f"Initialized agent in server mode with name: {self.server_name}")
+            self.logger.info(
+                f"Initialized agent in server mode with name: {self.server_name}"
+            )
         else:
             self.logger.info(f"Initialized agent in client-only mode")
 
@@ -112,7 +113,9 @@ class AgentServer:
 
             # Then discover tools from all servers
             self.logger.info("Discovering tools from servers")
-            await self.tool_registry.load_from_config(self.config, self.connection_manager)
+            await self.tool_registry.load_from_config(
+                self.config, self.connection_manager
+            )
 
             # Log the tools that were discovered
             tools = self.tool_registry.list_tools()
@@ -129,7 +132,9 @@ class AgentServer:
 
             # Log the capabilities that were loaded
             capabilities = self.capability_registry.list_capabilities()
-            self.logger.info(f"Loaded {len(capabilities)} capabilities from configuration")
+            self.logger.info(
+                f"Loaded {len(capabilities)} capabilities from configuration"
+            )
         except Exception as e:
             self.logger.error(f"Error loading capabilities: {e}")
             raise

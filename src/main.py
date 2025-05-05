@@ -1,14 +1,14 @@
 import asyncio
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
 
 from src.agent.agent import Agent
 from src.llm.base_llm import BaseLLM
-from src.utils.config import load_config
-from src.utils.context import get_context, initialize_context, cleanup_context
 from src.llm.groq_llm import GroqLLM
 from src.mcp.mcp_connection_manager import MCPConnectionManager
 from src.tools.tool import ToolRegistry
+from src.utils.config import load_config
+from src.utils.context import cleanup_context, get_context, initialize_context
 
 # Configure logging
 logging.basicConfig(
@@ -50,9 +50,7 @@ async def main() -> None:
         # Connect to each server and discover tools
         for name, server_config in config.server_configs.items():
             logger.info(f"Connecting to server: {name}")
-            await connection_manager.connect_server(
-                name, server_config.to_dict()
-            )
+            await connection_manager.connect_server(name, server_config.to_dict())
 
             # Discover tools from this server
             logger.info(f"Discovering tools from server: {name}")
